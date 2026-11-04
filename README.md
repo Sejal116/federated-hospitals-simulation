@@ -10,6 +10,40 @@ Gupta, S. (2026). "AI for Healthcare: How Can Hospitals Share Data to Build Bett
 
 The review surveyed federated learning, synthetic data, differential privacy and homomorphic encryption, and noted that it did not test any method experimentally. This repository is a small experiment in that direction, covering federated learning and differential privacy. It does not test synthetic data or homomorphic encryption.
 
+## Why this matters
+
+My review found that a single hospital often has too few patient records to train a reliable AI model, and that privacy rules make it hard to pool records with other hospitals. The people who feel this most are patients at smaller hospitals, where a screening or diagnosis tool is less accurate simply because the hospital has less data.
+
+This simulation tests the idea that hospitals can share what they learn without sharing patients. In plain terms:
+
+- A hospital using only its own data got about 4 to 5 wrong results in every 100 patients.
+- Hospitals training one shared model, with no patient records leaving any building, got about 2 in every 100. This matched what pooling all the records into one place achieved.
+- The smallest hospitals gained the most. Hospitals with under 100 training patients went from about 5.4 wrong in 100 to about 2.0 wrong in 100.
+
+For a hospital that screens 5,000 patients a year, that is roughly 170 fewer wrong results a year in this simulation. This is an illustration from one public dataset, not a measured outcome in a real hospital. Real hospitals would need to test it on their own data.
+
+## For hospitals and doctors
+
+The estimator below turns the simulation results into numbers for a hospital of a given size. Run it from the main folder after running the experiments:
+
+```
+python src/run_size_analysis.py
+python src/impact.py --patients-in-training 80 --screened-per-year 5000
+```
+
+Example output:
+
+```
+Out of 5,000 patients a year:
+  Own model only:  about 272 wrong results (5.4%)
+  Shared model:    about 102 wrong results (2.0%)
+  Difference:      about 170 fewer wrong results
+In the simulation, 93% of similar hospitals did better in the shared model and 0% did worse (15 simulated hospitals).
+This is based on one small public dataset. Test on your own data first.
+```
+
+What a hospital would need to try this for real: a labelled dataset of its own, agreement from at least two other hospitals, a shared agreed list of measurements, and approval from its data protection and ethics team. The shared model is trained by sending model updates, not patient records, but updates can still leak a little, which is why the privacy experiments below matter.
+
 ## What it does
 
 - Uses scikit-learn's built-in Wisconsin breast cancer dataset (569 patients, 30 measurements each).
@@ -69,6 +103,21 @@ A loss-based membership inference attack: guess "member" for patients the model 
 - **Experiment A** uses the simple model from the other experiments. The attack does no better than guessing, so this model leaks almost nothing and the noise has nothing to improve.
 - **Experiment B** uses a model I deliberately made prone to overfitting (squared features, 495 inputs, long training, one small hospital) to check that the attack works when there is something to find. It leaks a little, and more noise lowers the attack's success. The spread is large, so this is suggestive, not proven.
 
+### 4. Who gains most from sharing?
+
+Hospitals were grouped by how many training patients they had. Smaller hospitals gained the most, which is the group my review said is hurt most by limited data.
+
+| Training patients | Wrong alone | Wrong in shared model | Hospitals better off | Hospitals worse off |
+|---|---|---|---|---|
+| Under 100 | 5.4% | 2.0% | 93% | 0% |
+| 100 to 149 | 4.2% | 2.3% | 81% | 6% |
+| 150 to 199 | 4.2% | 2.4% | 67% | 7% |
+| 200 or more | 3.2% | 2.0% | 57% | 7% |
+
+![Error by hospital size](results/size.png)
+
+Each row has only 14 to 16 simulated hospitals, so these are rough estimates. The pattern is consistent across the rows, but the exact percentages should not be over-read. A small share of hospitals did slightly worse in the shared model, so sharing is not a guaranteed win for every hospital.
+
 ## Limitations
 
 - One small, easy dataset. Hospital-alone models already score about 96%, so the possible gain from sharing data is small.
@@ -78,6 +127,7 @@ A loss-based membership inference attack: guess "member" for patients the model 
 - The feature scaler is fitted on all training data, which pools some statistics across hospitals. Real hospitals could not do this.
 - In experiment B, each hospital is scored separately, so its 60 results come from 20 splits and are not fully independent.
 - Splits where a hospital lacks a class were skipped, which slightly favours more even splits.
+- The impact numbers in the estimator are averages over simulated hospitals of similar size. They are not a forecast for any real hospital, and they cover accuracy only, not cost, time or clinical outcomes.
 
 ## Run it yourself
 
@@ -94,6 +144,8 @@ python src/baselines.py
 python src/run_experiments.py
 python src/run_privacy.py
 python src/run_attack.py
+python src/run_size_analysis.py
+python src/impact.py --patients-in-training 80 --screened-per-year 5000
 ```
 
 Run the scripts from the main folder, since they save results to `results/`. Random seeds are fixed, so the results are reproducible. Small differences in the last digit can appear with different library versions.
@@ -110,6 +162,8 @@ src/baselines.py        single-run comparison
 src/run_experiments.py  repeated comparison, results table and chart
 src/run_privacy.py      privacy noise experiment
 src/run_attack.py       attack experiments
+src/run_size_analysis.py  gain by hospital size, saves size table and chart
+src/impact.py           hospital impact estimator
 tests/                  automatic tests
 results/                saved tables and charts
 ```
