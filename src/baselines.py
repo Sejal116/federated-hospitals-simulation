@@ -1,5 +1,6 @@
 from split import load_and_split, split_into_hospitals
 from models import init_weights, train, evaluate
+from federated import federated_averaging
 
 
 def run_baselines(seed=42):
@@ -14,6 +15,8 @@ def run_baselines(seed=42):
 
     w = train(init_weights(n_features), X_train, y_train)
     results["All data pooled"] = evaluate(w, X_test, y_test)
+    w = federated_averaging(hospitals, n_features)
+    results["Federated averaging"] = evaluate(w, X_test, y_test)
     return results
 
 
