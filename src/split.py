@@ -37,7 +37,7 @@ def split_into_hospitals(X, y, n_hospitals=3, alpha=1.0, seed=42):
 
     hospitals = []
     for idx in hospital_indexes:
-        idx = np.array(idx)
+        idx = np.array(idx, dtype=int)
         hospitals.append((X[idx], y[idx]))
     return hospitals
 
