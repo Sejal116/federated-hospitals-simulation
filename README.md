@@ -2,6 +2,8 @@
 
 A small experiment on how hospitals can train a shared medical AI model without sharing patient data. It compares training at one hospital alone, training on pooled data, and federated learning, then tests two privacy questions: what privacy noise costs in accuracy, and whether an attacker can tell who was in the training data.
 
+In one sentence: hospitals can team up to build a smarter AI without handing over patient secrets, and small hospitals benefit most.
+
 ## Background
 
 This project follows my published literature review:
