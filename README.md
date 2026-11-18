@@ -2,8 +2,6 @@
 
 A small experiment on how hospitals can train a shared medical AI model without sharing patient data. It compares training at one hospital alone, training on pooled data, and federated learning, then tests two privacy questions: what privacy noise costs in accuracy, and whether an attacker can tell who was in the training data.
 
-In one sentence: hospitals can team up to build a smarter AI without handing over patient secrets, and small hospitals benefit most.
-
 ## Background
 
 This project follows my published literature review:
@@ -14,7 +12,7 @@ The review surveyed federated learning, synthetic data, differential privacy and
 
 ## Why this matters
 
-My review found that a single hospital often has too few patient records to train a reliable AI model, and that privacy rules make it hard to pool records with other hospitals. The people who feel this most are patients at smaller hospitals, where a screening or diagnosis tool is less accurate simply because the hospital has less data.
+My review found that a single hospital often has too few patient records to train a reliable AI model, and that privacy rules make it hard to pool records with other hospitals. This suggests that patients at smaller hospitals could be affected most, because a screening or diagnosis tool trained on fewer records may be less accurate. The review did not test this, so the simulation below does.
 
 This simulation tests the idea that hospitals can share what they learn without sharing patients. In plain terms:
 
@@ -23,6 +21,8 @@ This simulation tests the idea that hospitals can share what they learn without 
 - The smallest hospitals gained the most. Hospitals with under 100 training patients went from about 5.4 wrong in 100 to about 2.0 wrong in 100.
 
 For a hospital that screens 5,000 patients a year, that is roughly 170 fewer wrong results a year in this simulation. This is an illustration from one public dataset, not a measured outcome in a real hospital. Real hospitals would need to test it on their own data.
+
+The simulated hospitals are random slices of one dataset, so they are very similar to each other. A second test on four hospitals’ public data gave a less clear picture, described in the section “Second dataset: four hospitals (UCI Heart Disease)” below.
 
 ## For hospitals and doctors
 
